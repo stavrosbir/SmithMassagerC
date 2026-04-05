@@ -126,22 +126,25 @@ static void * rnsMatrix_convertOne_thread(void * arg)
 
 void rnsMatrix_convert(rnsMatrix_t * Aq, rnsMatrix_t const * Ap)
 {
-  conv_args_t args[32];
-  pthread_t thread[32];
   long j;
+  long nmod = Aq->nmod;
+  conv_args_t * args = malloc(nmod * sizeof(conv_args_t));
+  pthread_t * thread = malloc(nmod * sizeof(pthread_t));
 
   residue_t * r = correctionFactor(Ap);
 
-  for (j = 0; j < Aq->nmod; ++j) {
+  for (j = 0; j < nmod; ++j) {
     args[j].Aq_i = Aq->residues[j];
     args[j].Ap = Ap;
     args[j].r = r;
 
     pthread_create(&thread[j], NULL, rnsMatrix_convertOne_thread, &(args[j]));
   }
-  for (j = 0; j < Aq->nmod; ++j) {
+  for (j = 0; j < nmod; ++j) {
     pthread_join(thread[j], NULL);
   }
+  free(args);
+  free(thread);
 }
 
 #endif
