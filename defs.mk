@@ -1,23 +1,19 @@
 export BASEDIR := $(dir $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))
 
-export CC := gcc
-export LDLIBS := -lopenblas -lgmp -lm -lmaplec -lflint
-export prefix := /Users/ziwenwang/repo/flint-nix-builds/
-export OPENBLAS := $(prefix)/openblas/
-export OPENBLAS_LIB_DIR := $(OPENBLAS)/lib/
-export OPENBLAS_INCLUDE_DIR := $(OPENBLAS)/include/
-export GMP := $(prefix)/gmp/
-export GMP_LIB_DIR := $(GMP)/lib/
-export GMP_INCLUDE_DIR := $(GMP)/include/
-export FLINT := $(prefix)/flint/
-export FLINT_LIB_DIR := $(FLINT)/lib/
-export FLINT_INCLUDE_DIR := $(FLINT)/include/
+export CC := cc
+export LDLIBS := -lopenblas -lgmp -lm -lflint
+export OPENBLAS_LIB_DIR := /opt/homebrew/opt/openblas/lib/
+export OPENBLAS_INCLUDE_DIR := /opt/homebrew/opt/openblas/include/
+export GMP_LIB_DIR := /opt/homebrew/opt/gmp/lib/
+export GMP_INCLUDE_DIR := /opt/homebrew/opt/gmp/include/
+export FLINT_LIB_DIR := /opt/homebrew/opt/flint/lib/
+export FLINT_INCLUDE_DIR := /opt/homebrew/opt/flint/include/flint/
 
-export INSTALL_DIR := ../maple/
+export INSTALL_DIR := ./install/
 
 #export THREAD := true
 
-export MAPLEDIR := /Library/Frameworks/Maple.framework/Versions/2025/
+export MAPLEDIR :=
 
 export LDFLAGS := #empty
 export CFLAGS  := #empty

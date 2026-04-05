@@ -62,13 +62,17 @@ int smithMassagerHelper(fmpz_mat_t U, fmpz_mat_t M, fmpz_mat_t T, fmpz_mat_t S, 
       r = min(startDim, n-sumR);
     } else {
       int sbits = fmpz_bits(s);
+#ifdef DEBUG
       printf("oldsbits, sbits %d %d\n", oldsbits, sbits);
+#endif
       r = min(max(bits(oldsbits - sbits)*i, startDim*i), n-sumR);
       if (sbits < 26) r = n-sumR;
     }
     oldsbits = fmpz_bits(s);
 
+#ifdef DEBUG
     printf("SmithMassager: iteration %d and r %d\n", i, r);
+#endif
     fmpz_mat_init(Up, r, n);
     fmpz_mat_init(Mp, n, r);
     fmpz_mat_init(Tp, r, r);
@@ -196,27 +200,10 @@ cleanInner:
     fmpz_mat_cpy(E, 0, n, n, 2*n-l, B, 0, n+l, n, 2*n);
     fmpz_mat_cpy(E, n, n, 2*n-l, 2*n-l, B, n+l, n+l, 2*n, 2*n);
 
-    char lbl[20] = "uniCert";
-    static struct timeval start_real, end_real;
-    static double diff_real;
-    gettimeofday(&start_real, NULL);
-    success = fmpz_uniCert(E);
-    gettimeofday(&end_real, NULL);
-    diff_real = (end_real.tv_sec - start_real.tv_sec) + (end_real.tv_usec - start_real.tv_usec) / 1000000.0;
-    printf("%s: %.5f seconds (real time)\n", lbl, diff_real);
-
-    //TIMER_REAL("uniCert:", success = fmpz_uniCert(E));
-
+    REAL_TIMER("uniCert", success = fmpz_uniCert(E));
     fmpz_mat_clear(E);
   } else {
-    char lbl[20] = "uniCert";
-    static struct timeval start_real, end_real;
-    static double diff_real;
-    gettimeofday(&start_real, NULL);
-    success = fmpz_uniCert(B);
-    gettimeofday(&end_real, NULL);
-    diff_real = (end_real.tv_sec - start_real.tv_sec) + (end_real.tv_usec - start_real.tv_usec) / 1000000.0;
-    printf("%s: %.5f seconds (real time)\n", lbl, diff_real);
+    REAL_TIMER("uniCert", success = fmpz_uniCert(B));
   }
 
 cleanOuter:
