@@ -17,9 +17,10 @@ Based on the algorithms described in:
 
 This is a fork of
 [SmithMassager/SmithMassagerC](https://github.com/SmithMassager/SmithMassagerC),
-originally developed at the University of Waterloo by Colton Pauderis,
-Arne Storjohann, and collaborators.  See [CHANGES.md](CHANGES.md) for
-the modifications made in this fork.
+implemented by Ziwen Wang at the University of Waterloo.  The
+underlying library builds on earlier work by Colton Pauderis and
+Arne Storjohann.  See [CHANGES.md](CHANGES.md) for the modifications
+made in this fork.
 
 ## Dependencies
 
