@@ -12,6 +12,10 @@ building on macOS without Maple, and clean up the code.
   as fixed-size `[32]` on the stack.  If the RNS basis has more than 32
   moduli (which occurs for large matrices with big entries), this overflows
   and causes memory corruption.  Changed to dynamic allocation via `malloc`.
+- **Non-deterministic PRNG seeding** (`src/core/fmpz_rand.c`):  The FLINT
+  random state was initialized with a fixed default seed, making Las Vegas
+  restarts deterministic.  Now seeded from `time()` and `getpid()`.  Also
+  fixed the `initialized` flag which was never set to 1.
 
 ## Build system
 
