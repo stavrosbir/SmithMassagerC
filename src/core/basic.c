@@ -330,5 +330,6 @@ int clz(unsigned int x) {
 }
 
 int bits(unsigned int x) {
+  if (x == 0) return 0;
   return 32 - clz(x);
 }
