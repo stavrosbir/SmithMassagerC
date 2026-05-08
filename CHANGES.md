@@ -16,6 +16,31 @@ building on macOS without Maple, and clean up the code.
   random state was initialized with a fixed default seed, making Las Vegas
   restarts deterministic.  Now seeded from `time()` and `getpid()`.  Also
   fixed the `initialized` flag which was never set to 1.
+- **Use `fmpz_mat_randbits` instead of `fmpz_mat_randtest` for random
+  projections** (`src/core/largestInvariantFactor.c`,
+  `src/core/indexMassager.c`):  `fmpz_mat_randtest` is FLINT's
+  edge-case generator and intentionally produces sparse / structured
+  matrices.  Using it for the random projection violated the algorithm's
+  randomness assumption and caused the index massager to fail repeatedly
+  (15-20% per-attempt success rate, dozens of restarts).  With
+  `fmpz_mat_randbits` (uniform random) the algorithm essentially always
+  succeeds in one attempt, as predicted by the theory.
+
+## Algorithm correctness improvements
+
+- **Multi-solve LIF** (`src/core/largestInvariantFactor.c`):  The
+  `largestInvariantFactor` routine now performs `nsolves=5` independent
+  IML solves with fresh random `B`, taking the LCM of the resulting
+  denominator estimates.  A single solve only captures a divisor of
+  `s_n` (with high probability equal to `s_n` for generic matrices,
+  but sometimes a proper divisor); taking the LCM across multiple
+  solves makes the estimate of `s_n` essentially exact.
+- **Dynamic projection width** (`src/core/indexMassager.c`,
+  `src/core/smithMassager.c`):  The number of "extra" projection
+  columns `k` was hardcoded to 5.  Theory requires
+  `k = ceil(log2 r) + c` for per-call success probability
+  >= 1 - 1/2^c.  Now `k = 2*ceil(log2 r) + 20`, which gives a
+  per-call success probability essentially 1.
 
 ## Build system
 

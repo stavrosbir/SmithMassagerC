@@ -12,6 +12,15 @@
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) -min(-a,-b)
 
+/* ceil(log2(x)) for x >= 1; returns 0 for x <= 1.
+ * Used to size the number of "extra" projection columns
+ * passed through to indexMassager. */
+static int ceil_log2(int x) {
+  int l = 0, v = 1;
+  while (v < x) { v <<= 1; l++; }
+  return l;
+}
+
 int smithMassager(fmpz_mat_t U, fmpz_mat_t M, fmpz_mat_t T, fmpz_mat_t S, fmpz_mat_t A) {
   assert(A->r == A->c);
   int success = 0;
@@ -37,7 +46,8 @@ int smithMassagerHelper(fmpz_mat_t U, fmpz_mat_t M, fmpz_mat_t T, fmpz_mat_t S, 
 
   i = sumR = r = 0;
   n = A->r;
-  k = startDim = 6;
+  startDim = 6;
+  k = ceil_log2(startDim) + 4;
   success = 1;
 
   fmpz_mat_init(B, 2*n, 2*n);
@@ -55,7 +65,6 @@ int smithMassagerHelper(fmpz_mat_t U, fmpz_mat_t M, fmpz_mat_t T, fmpz_mat_t S, 
   fmpz_mat_cpy(B, 0, 0, n, n, A, 0, 0, n, n);
 
   REAL_TIMER("largestInvFactor", largestInvariantFactor(s, Q, A, startDim+k));
-  //largestInvariantFactor(s, Q, A, startDim+k);
   while (sumR < n) {
     fmpz_mat_t Up, Mp, Tp, Sp, SpInv, MpSpInv, Update, TpSpInv, UpMp, NegUpM, Msub, Usub, concat;
     if (i == 0) {

@@ -8,6 +8,14 @@
 #include "timer.h"
 #include "fmpz_rand.h"
 
+/* ceil(log2(x)) for x >= 1; returns 0 for x <= 1. */
+static int ceil_log2(int x) {
+  int l = 0;
+  int v = 1;
+  while (v < x) { v <<= 1; l++; }
+  return l;
+}
+
 int indexMassager(fmpz_mat_t S, fmpz_mat_t U, fmpz_mat_t M, fmpz_mat_t T, fmpz_mat_t B, int n, int m, int r, fmpz_t s, int kk, fmpz_mat_t Q) {
   assert(m + r <= n);
   if (fmpz_cmp_ui(s, 1) == 0) {
@@ -20,7 +28,11 @@ int indexMassager(fmpz_mat_t S, fmpz_mat_t U, fmpz_mat_t M, fmpz_mat_t T, fmpz_m
     return 1;
   }
 
-  int k = 5, success = 1;
+  /* Number of "extra" projection columns.
+   * From the theory (Birmpilis-Labahn-Storjohann, ISSAC 2020):
+   * k = ceil(log2 r) + 4 suffices for per-call success probability
+   * >= 7/8, via union bound over r base cases. */
+  int k = ceil_log2(r) + 4, success = 1;
   fmpz_mat_t J, J1, J2, P, P1, P2;
 
   fmpz_mat_init(P, 2*n, r+k);
@@ -33,7 +45,12 @@ int indexMassager(fmpz_mat_t S, fmpz_mat_t U, fmpz_mat_t M, fmpz_mat_t T, fmpz_m
     fmpz_mat_window_init(J2, J, n, 0, 2*n, r+k);
 
     fmpz_mat_zero(J2);
-    fmpz_mat_randtest(J1, rand, fmpz_bits(s));
+    /* IMPORTANT: use fmpz_mat_randbits (uniform random), NOT
+     * fmpz_mat_randtest.  The latter intentionally generates pathological
+     * matrices for testing (sparse, structured, all-zero rows), which
+     * destroys the randomness assumption of the projection and causes
+     * the index massager to fail repeatedly. */
+    fmpz_mat_randbits(J1, rand, fmpz_bits(s));
     fmpz_mat_mod(J1, J1, s);
     REAL_TIMER("specialIntCert", success = specialIntCert(P, s, B, J, n, r+k, m));
 
@@ -55,11 +72,8 @@ int indexMassager(fmpz_mat_t S, fmpz_mat_t U, fmpz_mat_t M, fmpz_mat_t T, fmpz_m
     fmpz_mat_window_clear(P1);
     fmpz_mat_window_init(P1, Q, 0, 0, Q->r, Q->c);
   }
-  
+
   REAL_TIMER("computeProjBasis", success = computeProjBasis(S, U, M, T, P1, n, r, s, k));
-  if (!success) {
-    printf("computeProjBasis returned false\n");
-  }
 
   fmpz_mat_cmod(M, M, S);
 clear:
